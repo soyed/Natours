@@ -1,0 +1,29 @@
+doctype html 
+//- Write HTML without close tags
+//- Pug whitespace sensitive syntax
+//- Pug allows regular css as well
+html
+    head 
+        title Natours
+        //- why do the links work without a path to the assets
+        //- because they are built like routes to query from that resource
+        //- therefore with the static middleware defined in "app.js" => the resources are automatically linked in the pug templates therefore no need to provide a path to find the resources needed => instead they are linked together
+        link(rel='stylesheet' href='css/style.css')
+        link(rel='shortcut icon' type='image/png' href='img/favicon.png' ) 
+        
+    body
+        //- this is called buffered code
+        h1= tour
+        // h1 The Park Camper => visible in template rendered in html
+        // javascript can be ran in a buffer code as well
+        h2= user.toUpperCase()
+
+        //- un-buffered code has not affect on template
+        //- interpolation => #{local}
+        - const x = 45;
+        h3= 2 * x
+        p Starter template
+
+        //- Note Add CSS classnames with the HTML Tags => pug is like regular SASS
+        //- Discard div => simply annotate with . or # and it assigns automatically
+        //- Header 
