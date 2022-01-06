@@ -21,6 +21,9 @@ const bookingRouter = require('./routes/bookingRoutes');
 
 const app = express();
 
+// heroku is a proxy => like a middle man that redirects and modifies routes => therefore make sure heroku is trusted
+app.enable('trust proxy')
+
 // To render view from server side => use pug engine => pug is the most commonly used
 // express => supports most view engines out of the box
 // view engine => rep the VIEW section of MVC Architecture

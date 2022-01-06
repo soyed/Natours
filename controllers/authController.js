@@ -36,7 +36,7 @@ const signToken = (userId) =>
 // A cookie is a small piece of text the server can send to the client
 // the client stores that cookie and all future requests will be directed to that server =>will will include that cookie
 
-const createAndSendToken = (user, statusCode, res) => {
+const createAndSendToken = (user, statusCode, req, res) => {
   // Store token
   const token = signToken(user._id);
 
@@ -48,14 +48,21 @@ const createAndSendToken = (user, statusCode, res) => {
     expires: new Date(Date.now() + cookieExpirationDate),
     // to prevent cross browser attacks => XSS
     httpOnly: true,
+    // Not all deployed applications are secure => there remove this and secure the connection
+  // req.secure => checks for https
+  // req.headers('x-forward-proto') => heroku unique => because their a re-route done before the root url is reached => this internal middleware || step from heroku needs to be check to ensure there is a secure connection
+  
+    secure: req.secure || req.headers('x-forward-proto') === 'https'
   };
 
   // FIXME:set secure to true only on prod - is this a standard practice?
   // should we enforce security on all platforms?
-  if (process.env.NODE_ENV === 'production') {
-    //  only sent on secure connection => https
-    cookieOptions.secure = true;
-  }
+  // if (process.env.NODE_ENV === 'production') {
+  //   //  only sent on secure connection => https
+  //   cookieOptions.secure = true;
+  // }
+  
+
 
   // Send a cookie
   res.cookie('jwt', token, cookieOptions);
@@ -90,7 +97,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   // 1. send a welcome email when a user signs up
   await new Email(newUser, url).sendWelcome();
 
-  createAndSendToken(newUser, 201, res);
+  createAndSendToken(newUser, 201,req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -112,7 +119,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // decrypting password and compare with the req.password
   // If Everything, is valid send JWT Token => token is the most important when user logins into the application
-  createAndSendToken(user, 200, res);
+  createAndSendToken(user, 200, req, res);
 });
 
 /*=============================================================*/
@@ -330,7 +337,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 3. Update the changedPasswordAt property for user => done in the user model middleware
 
   // 4. Log the user in, send JWT
-  createAndSendToken(user, 200, res);
+  createAndSendToken(user, 200,req, res);
 });
 
 /**
@@ -370,7 +377,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   //   token,
   // });
 
-  createAndSendToken(user, 200, res);
+  createAndSendToken(user, 200,req, res);
 });
 /*=============================================================*/
 
