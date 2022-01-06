@@ -55,3 +55,14 @@ process.on('unhandledRejection', (err) => {
     process.exit(1);
   });
 });
+
+
+// LEARN: Handle Heroku SIGTERM => used to shut down app => usually every 24 hours
+// SIGTERM => can be abrupt => disrupt all active request => instead allow a more lenient shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM RECEIVED. Shutting Down Gracefully!');
+  server.close(() => {
+    console.log('Process Terminated!!');
+    process.exit(1);
+  })
+})
