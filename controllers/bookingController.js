@@ -34,7 +34,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         name: `${tour.name} Tour`,
         description: tour.summary,
         // images are only expected to be live links => no locals stored images as stripe stores this image on its server
-        images: [`https://www.natours.dev/img/tours/${tour.imageCover}`],
+        images: [
+          `${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`,
+        ],
         // price by default is in cents
         amount: tour.price * 100,
         currency: 'usd',
@@ -74,7 +76,7 @@ const createBooking = async (session) => {
   // get user id using the customer email provided
   const user = await User.findOne({ email: session.customer_email }).id;
 
-  const price = session.line_items[0].amount / 100;
+  const price = session.display_items[0].amount / 100;
   await Booking.create({ tour, user, price });
 };
 
@@ -94,7 +96,7 @@ exports.webhookCheckout = (req, res, next) => {
   }
 
   // using event and guard to double check the event type
-  if (event.type === 'checkout.session.complete') {
+  if (event.type === 'checkout.session.completed') {
     //1. use event to create database booking
     createBooking(event.data.object);
   }
