@@ -9,6 +9,12 @@ const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const csp = require('express-csp');
 const compression = require('compression');
+// Understanding CORS => Cross Origin Resource Sharing
+// https://natours-leumas.herokuapp.com/  example.com/
+// two website with different req.host trying to access or query from another => CORS not allowed
+// to make API Available to everyone => this would fail as of right with the current CORS implementation
+// CORS sharing by default blocked => and this behavior is for browsers mainly
+const cors = require('cors');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -22,13 +28,31 @@ const bookingRouter = require('./routes/bookingRoutes');
 const app = express();
 
 // heroku is a proxy => like a middle man that redirects and modifies routes => therefore make sure heroku is trusted
-app.enable('trust proxy')
+app.enable('trust proxy');
 
 // To render view from server side => use pug engine => pug is the most commonly used
 // express => supports most view engines out of the box
 // view engine => rep the VIEW section of MVC Architecture
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+
+// CORS IMPLEMENTATION
+// you can strict cors to specific routes only => there only exposing a certain set of resources to the world
+// Currently works for simple | SAFE requests only => this only allows GET and POST => (OPTIONS, GET, HEAD)
+app.use(cors());
+// Access-Control-Allow-Origin *
+// allow cross with domains with the same name
+// backend link api.natours.com frontend link => natours.com => it strictly only allows communication between these two
+// app.use(
+//   cors({
+//     origin: 'https://www.natours.com',
+//   })
+// );
+//
+// ALLOWING NON-SIMPLE | UNSAFE  requests in this case => the browser sends an option to check if the operation is safe to send THEN it sends the UNSAFE Request => (DELETE, PUT, PATCH, POST)
+// Allow options + cors() => preflight request + flight request =>
+app.options('*', cors());
+// can also restrict options to specific routes => or domains of the web application
 
 // serve STATIC FILES
 // serving static files using middle wares => public is not need at the url because it serves as the active root therefore => you ony really need to add the file name you are quering for
