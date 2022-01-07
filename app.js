@@ -24,6 +24,7 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const { webhookCheckout } = require('./controllers/bookingController');
 
 const app = express();
 
@@ -158,6 +159,17 @@ const limiter = rateLimit({
 // what this does => the package create two custom headers tracking the number of request sent
 // X-RateLimit-Limit && X-RateLimit-Remaining
 app.use('/api', limiter);
+
+// adding Stripe Webhook checkout route
+// the response sent from stript to acknowledge a successful checkout needs to be a stream
+// a json received results in an error
+// if this route follow below the json body parser it will defined convert the data to json format
+// => how to parse data from stripe
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  webhookCheckout
+);
 
 // set BODY PARSER => reading data from body into req.body
 // to get body from post request
