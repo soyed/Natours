@@ -93,7 +93,7 @@ exports.webhookCheckout = (req, res, next) => {
     );
   } catch (error) {
     // Send error back to stripe
-    res.status(400).send(`Webhook Error: ${err.message}`);
+    res.status(400).send(`Webhook Error: ${error.message}`);
   }
 
   // using event and guard to double check the event type
