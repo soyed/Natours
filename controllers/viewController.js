@@ -70,3 +70,13 @@ exports.updateUserInformation = catchAsync(async (req, res, next) => {
 
   res.status(200).render('account', { user: updatedUser });
 });
+
+exports.alert = (req, res, next) => {
+  const { alert } = req.query;
+
+  if (alert === 'booking') {
+    res.locals.alert =
+      'Booking successful! Please check you email for booking confirmation. If you booking does not show up immediately, please come back later.';
+  }
+  next();
+};

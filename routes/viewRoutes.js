@@ -11,9 +11,13 @@ const {
   getAccount,
   updateUserInformation,
   getMyTours,
+  alert,
 } = require('../controllers/viewController');
 
 const viewRouter = express.Router();
+
+// router to show success checkout
+viewRouter.use(alert);
 
 // ensure that all users accessing these routes are logged in
 // viewRouter.use(isLoggedIn);
