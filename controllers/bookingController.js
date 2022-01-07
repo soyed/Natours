@@ -74,15 +74,16 @@ const createBooking = async (session) => {
   // Get the tour booked
   const tour = session.client_reference_id;
   // get user id using the customer email provided
-  const user = await User.findOne({ email: session.customer_email }).id;
+  const user = (await User.findOne({ email: session.customer_email }))._id;
 
-  const price = session.display_items[0].amount / 100;
+  // const price = session.display_items[0].amount / 100;
+  const price = session.amount_total / 100;
   await Booking.create({ tour, user, price });
 };
 
 exports.webhookCheckout = (req, res, next) => {
   // 1. Read Stripe Signature
-  const signature = req.headers('stripe-headers');
+  const signature = req.headers['stripe-signature'];
   let event;
   try {
     event = stripe.webhooks.constructEvent(
@@ -92,7 +93,7 @@ exports.webhookCheckout = (req, res, next) => {
     );
   } catch (error) {
     // Send error back to stripe
-    res.status(400).send(`Webhook error: ${err.message}`);
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // using event and guard to double check the event type
